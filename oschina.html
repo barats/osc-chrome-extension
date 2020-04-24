@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>OSChina Chrome Extension</title>
+    <title>开源中国 Chrome 浏览器插件</title>
     <style>
         * {
             margin: 0;
@@ -46,6 +46,7 @@
 
         .header-container .search-wrap {
             margin-left: 36px;
+            width: 100%;
             font-size: 0;
         }
 
@@ -72,6 +73,27 @@
         }
 
         .header-container .search-wrap .btn-search:hover {
+            background: #eee;
+        }
+
+        .header-container .version-wrap {
+            width: 100%;
+            font-size: 0;
+            text-align: right;
+        }
+
+        .header-container .version-wrap .btn-download {
+            font-size: 14px;
+            line-height: 22px;
+            height: 36px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px 6px 6px 6px;
+            padding: 4px 16px;
+            cursor: pointer;
+            outline: 0;
+        }
+
+        .header-container .version-wrap .btn-download:hover {
             background: #eee;
         }
 
@@ -192,11 +214,12 @@
                 <img src="https://static.oschina.net/new-osc/img/logo_osc_new.svg" alt="OSCHINA">
             </a>
             <div class="search-wrap">
-                <form action="https://www.oschina.net/search">
-                    <input type="hidden" name="scope" value="all">
-                    <input type="text" name="q" placeholder="搜索开源软件、资讯、技术文章" required>
-                    <button type="submit" class="btn-search">搜索</button>
-                </form>
+                <input id="txt-search" type="text" name="q" placeholder="搜索开源软件、资讯、技术文章" required>
+                <button id="btn-search" type="button" class="btn-search">搜索</button>
+
+            </div>
+            <div class="version-wrap">
+                <button id="btn-download" type="button" class="btn-download">下载源码</button>
             </div>
         </div>
         <div class="panel-container">

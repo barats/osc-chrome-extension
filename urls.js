@@ -13,3 +13,7 @@ function getRecommendBlogsRss() {
 function getRecommandProjectsRss() {
     return "https://www.oschina.net/project/rss?show=recomms";
 }
+
+function getUtmSourcePatten() {
+    return "utm_source=oschina-chrome-extension";
+}

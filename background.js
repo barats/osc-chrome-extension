@@ -2,10 +2,6 @@ chrome.browserAction.setBadgeBackgroundColor({
     color: [190, 190, 190, 230]
 });
 
-// chrome.browserAction.setBadgeText({
-//     text: "WOW"
-// });
-
 chrome.runtime.onInstalled.addListener(function () {
     console.log('oschina chrome extension installed.');
 });

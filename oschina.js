@@ -70,4 +70,32 @@ function getData() {
     getRssData(getRecommandProjectsRss(), 'projectsList');
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+
+    //下载源码按钮点击事件
+    document.getElementById('btn-download').onclick = function () {
+        chrome.tabs.create({
+            'url': 'https://gitee.com/barat/osc-chrome-extension?' + getUtmSourcePatten()
+        });
+    };
+
+    //搜索按钮点击事件
+    document.getElementById('btn-search').onclick = function () {
+        var txtSearch = document.getElementById('txt-search').value;
+        if (txtSearch) {
+            var query = encodeURIComponent(txtSearch);
+            chrome.tabs.create({
+                'url': 'https://www.oschina.net/search?scope=all&q=' + query + '&' + getUtmSourcePatten()
+            });
+        } //end of if
+    };
+
+    //搜索输入框中的回车事件
+    document.getElementById('txt-search').onkeydown = function (event) {
+        if (event.keyCode == 13) {
+            document.getElementById('btn-search').click();
+        }
+    };
+});
+
 chrome.browserAction.onClicked.addListener(getData());

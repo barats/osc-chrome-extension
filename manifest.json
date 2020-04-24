@@ -7,7 +7,7 @@
         "persistent": false
     },
     "browser_action": {
-        "default_title": "Open New Tab"
+        "default_title": "开源中国"
     },
     "icons": {
         "16": "oschina_icon16.png",
@@ -20,8 +20,5 @@
         "webNavigation",
         "https://*.oschina.net/*"
     ],
-    "chrome_url_overrides" : {
-        "newtab": "oschina.html"
-    },
     "manifest_version": 2
 }
