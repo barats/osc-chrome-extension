@@ -46,7 +46,7 @@ function showRssItem(item, type) {
 }
 
 function constructListDiv(item) {
-    var div = '<div class="item"><a target="blank" href="' + item.link + '?utm_source=oschina-chrome-extension"><div class="title">' + item.title + '</div></a>';
+    var div = '<div class="item"><a target="blank" href="' + item.link + '?' + getUtmSourcePatten() + '"><div class="title">' + item.title + '</div></a>';
     div += '<div class="description">' + item.description + '</div>';
     div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
