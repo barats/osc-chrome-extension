@@ -1,37 +1,24 @@
 # osc-chrome-extension
 
-#### 介绍
-开源中国 (oschina.net) 谷歌浏览器插件
+#### 概要
+开源中国 (oschina.net) 谷歌浏览器插件，聚合开源中国每日最新资讯、推荐精品博客、最新收录开源软件等优质内容。
 
-#### 软件架构
-软件架构说明
+![latest-snapshot](snapshots/snapshot_v1.1.png)
 
+#### 安装使用方式：通过 [Chrome Web Store 下载](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf/related) (注意打开方式)
 
-#### 安装教程
+#### 安装使用方式：通过源码安装
+1. git clone 本项目
+2. 打开 Chrome 浏览器 Extensions 页面
+3. 打开「Developer mode」
+4. 选择左上角「Load unpacked」之后选择本仓库的根目录
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+#### 如何参与本项目贡献
+如果你觉得这项目挺有意思，亦或想要吐槽，欢迎通过以下方式提交 PR
 
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
+1.  fork 本仓库
+2.  新建 feature_xxx 分支或 bugfix_xxx 分支
 3.  提交代码
 4.  新建 Pull Request
 
-
-#### 码云特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5.  码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### 最后，欢迎吐槽！ Enjoy. 
