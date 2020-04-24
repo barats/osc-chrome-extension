@@ -5,7 +5,7 @@
 
 ![latest-snapshot](snapshots/snapshot_v1.3.png)
 
-#### 安装使用方式：通过 [Chrome Web Store 下载](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf/related) (注意打开方式)
+#### 安装使用方式：通过 [Chrome Web Store 下载](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf) (注意打开方式)
 
 #### 安装使用方式：通过源码安装
 1. git clone 本项目
