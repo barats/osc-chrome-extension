@@ -20,5 +20,8 @@
         "webNavigation",
         "https://*.oschina.net/*"
     ],
+    "chrome_url_overrides" : {
+        "newtab": "oschina.html"
+    },
     "manifest_version": 2
 }
