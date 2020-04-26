@@ -70,6 +70,24 @@ function getData() {
     getRssData(getRecommandProjectsRss(), 'projectsList');
 }
 
+function scroolToElement(element, to, duration) {
+    if (duration < 0) return;
+
+    var difference = to - element.scrollTop;
+    var perTick = difference / duration * 2;
+    setTimeout(function () {
+        element.scrollTop = element.scrollTop + perTick;
+        scroolToElement(element, to, duration - 2);
+    }, 5);
+}
+
+
+///////////////////////// 页面加载之后加载数据 //////////////////////////
+
+chrome.browserAction.onClicked.addListener(getData());
+
+////////////////// 页面上的各类时间点击  ///////////////////////
+
 document.addEventListener('DOMContentLoaded', function () {
 
     //下载源码按钮点击事件
@@ -96,6 +114,29 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('btn-search').click();
         }
     };
-});
 
-chrome.browserAction.onClicked.addListener(getData());
+
+    //标题「开源资讯」的点击事件
+    document.getElementById('newsTitle').onclick = function (event) {
+        scroolToElement(document.getElementById('newsList'), document.getElementById('newsList').offsetTop, 100);
+        getRssData(getLatestNewsRss(), 'newsList');
+    };
+
+    //标题「推荐博客」的点击事件
+    document.getElementById('blogsTitle').onclick = function (event) {
+        scroolToElement(document.getElementById('blogsList'), document.getElementById('blogsList').offsetTop, 100);
+        getRssData(getRecommendBlogsRss(), 'blogsList');
+    };
+
+    //标题「开源软件」的点击事件
+    document.getElementById('projectsTitle').onclick = function (event) {
+        scroolToElement(document.getElementById('projectsList'), document.getElementById('projectsList').offsetTop, 100);
+        getRssData(getRecommandProjectsRss(), 'projectsList');
+    };
+
+    //标题「最新问答」的点击事件
+    document.getElementById('questionsTitle').onclick = function (event) {
+        scroolToElement(document.getElementById('questoinsList'), document.getElementById('questoinsList').offsetTop, 100);
+        getRssData(getLatestQuestionsRss(), 'questoinsList');
+    };
+});
