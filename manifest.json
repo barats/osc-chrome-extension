@@ -1,6 +1,6 @@
 {
     "name": "开源中国",
-    "version": "1.3",
+    "version": "1.4",
     "description": "开源中国(oschina.net) Chrome 浏览器插件",
     "background": {
         "scripts": ["background.js"],
