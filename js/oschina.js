@@ -15,13 +15,14 @@ function getRssData(rssLink, divId) {
             var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
             try {
                 var fullCountNode = fullCountSet.iterateNext();
-                var divContent = '<div class="item">';
+                var divContent = '';
                 while (fullCountNode) {
                     divContent += constructListDiv(constructRssItem(fullCountNode));
                     fullCountNode = fullCountSet.iterateNext();
                 }
-                divContent += "</div>";
-                document.getElementById(divId).innerHTML = divContent;
+                if (divContent) {
+                    document.getElementById(divId).innerHTML = divContent;
+                }
             } catch (error) {
                 console.log('error->', error);
                 setErrorLabel(divId, '数据解析错误' + error.name);
@@ -47,9 +48,9 @@ function constructRssItem(xmlNode) {
 }
 
 function constructListDiv(item) {
-    var div = '<a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
+    var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
     div += '<div class="description">' + item.description + '</div>';
-    div += '<div class="pubDate">' + item.pubDate + '</div>';
+    div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
 }
 
