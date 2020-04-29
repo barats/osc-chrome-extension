@@ -41,11 +41,14 @@ a {
 
 .header-container .search-wrap {
     margin-left: 36px;
-    width: 100%;
-    font-size: 0;
+    width: 442px;
+    display: flex;
+    flex-direction: row;
 }
 
 .header-container .search-wrap input {
+    flex: 1;
+    min-width: 0;
     padding: 6px 16px;
     outline: 0;
     border: 1px solid #e0e0e0;
@@ -57,6 +60,8 @@ a {
 }
 
 .header-container .search-wrap .btn-search {
+    flex-shrink: 0;
+    width: 62px;
     font-size: 14px;
     line-height: 22px;
     height: 36px;
@@ -116,12 +121,38 @@ a {
 
 .panel__title {
     flex-shrink: 0;
-    font-size: 18px;
-    font-weight: 500;
     padding: 10px 14px;
     background: #fff;
     margin-bottom: 12px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel__title .title {
+    font-size: 18px;
+    font-weight: 500;
     color: #32aa66;
+}
+
+.panel__title .select {
+    margin-left: auto;
+}
+
+.panel__title .select select {
+    position: relative;
+    border: 1px solid #eee;
+    padding: 3px 22px 3px 10px;
+    outline: none;
+    font-size: 14px;
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    border-radius: 4px;
+    color: #666;
+    background: url("icon_arrow_down.svg") no-repeat scroll right center transparent;
+    background-size: 20px 20px;
 }
 
 .list {

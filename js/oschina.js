@@ -1,5 +1,8 @@
-function getRssData(rssLink, type) {
+function getRssData(rssLink, divId) {
+
     var xhr = new XMLHttpRequest();
+
+    setLoadingLabel(divId);
 
     xhr.onreadystatechange = function () {
 
@@ -12,19 +15,23 @@ function getRssData(rssLink, type) {
             var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
             try {
                 var fullCountNode = fullCountSet.iterateNext();
+                var divContent = '<div class="item">';
                 while (fullCountNode) {
-                    showRssItem(constructRssItem(fullCountNode), type);
+                    divContent += constructListDiv(constructRssItem(fullCountNode));
                     fullCountNode = fullCountSet.iterateNext();
                 }
-            } catch (e) {
-                console.log('error->', e);
+                divContent += "</div>";
+                document.getElementById(divId).innerHTML = divContent;
+            } catch (error) {
+                console.log('error->', error);
+                setErrorLabel(divId, '数据解析错误' + error.name);
             } //end of try-catch
         } //end of if(xhr.responseXML)
     };
 
     xhr.onerror = function (error) {
         console.error('error->', error);
-        //TODO: handle error
+        setErrorLabel(divId, '网络错误');
     };
 
     xhr.open("GET", rssLink, true);
@@ -39,14 +46,10 @@ function constructRssItem(xmlNode) {
     return new RssItem(title, description, link, pubDate);
 }
 
-function showRssItem(item, type) {
-    document.getElementById(type).innerHTML += constructListDiv(item);
-}
-
 function constructListDiv(item) {
-    var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
+    var div = '<a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
     div += '<div class="description">' + item.description + '</div>';
-    div += '<div class="pubDate">' + item.pubDate + '</div></div>';
+    div += '<div class="pubDate">' + item.pubDate + '</div>';
     return div;
 }
 
@@ -61,32 +64,23 @@ function createNSResolver(xmlDoc) {
     return xmlDoc.createNSResolver(xmlDoc.ownerDocument == null ? xmlDoc.documentElement : xmlDoc.ownerDocument.documentElement);
 }
 
-function getData() {
-    getRssData(RSS_LATEST_NEWS, 'newsList');
-    getRssData(RSS_LATEST_QUESTIONS, 'questoinsList');
-    getRssData(RSS_LATEST_RECOMM_BLOGS, 'blogsList');
-    getRssData(RSS_LATEST_RECOMM_PROJECTS, 'projectsList');
+function setLoadingLabel(divId) {
+    document.getElementById(divId).innerHTML = '<p style="text-align:center;font-size:20px">Loading ... </p>';
 }
 
-function scroolToElement(element, to, duration) {
-    if (duration < 0) return;
-
-    var difference = to - element.scrollTop;
-    var perTick = difference / duration * 2;
-    setTimeout(function () {
-        element.scrollTop = element.scrollTop + perTick;
-        scroolToElement(element, to, duration - 2);
-    }, 5);
+function setErrorLabel(divId, error) {
+    document.getElementById(divId).innerHTML = '<p style="color:red;text-align:center;font-size:22px">Error (' + error + ') </p>';
 }
-
-
-///////////////////////// 页面加载之后加载数据 //////////////////////////
-
-chrome.browserAction.onClicked.addListener(getData());
 
 ////////////////// 页面上的各类时间点击  ///////////////////////
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    // DOM内容加载完成之后，开始获取数据并展示
+    getRssData(RSS_NEWS, 'news-list'); //最新资讯
+    getRssData(RSS_QUESTIONS_PREFIX + "1", 'questions-list'); //最新发布问答
+    getRssData(RSS_RECOMM_BLOGS, 'blogs-list'); //最新推荐博客
+    getRssData(RSS_PROJECTS, 'projects-list'); //最新收录开源软件
 
     // //下载源码按钮点击事件
     document.getElementById('btn-download').onclick = function () {
@@ -115,26 +109,70 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     //标题「开源资讯」的点击事件
-    document.getElementById('newsTitle').onclick = function (event) {
-        scroolToElement(document.getElementById('newsList'), document.getElementById('newsList').offsetTop, 100);
-        getRssData(RSS_LATEST_NEWS, 'newsList');
+    document.getElementById('news-title').onclick = function (event) {
+        var selectedValue = document.getElementById('news-selector').value;
+        if (selectedValue) {
+            setLoadingLabel('news-list');
+            if (selectedValue == 'all') {
+                getRssData(RSS_NEWS, 'news-list');
+            } else {
+                getRssData(RSS_NEWS_PREFIX + selectedValue, 'news-list');
+            }
+        }
     };
 
     //标题「推荐博客」的点击事件
-    document.getElementById('blogsTitle').onclick = function (event) {
-        scroolToElement(document.getElementById('blogsList'), document.getElementById('blogsList').offsetTop, 100);
-        getRssData(RSS_LATEST_RECOMM_BLOGS, 'blogsList');
+    document.getElementById('blogs-title').onclick = function (event) {
+        var selectedValue = document.getElementById('blogs-selector').value;
+        if (selectedValue) {
+            setLoadingLabel('blogs-list');
+            if (selectedValue == 'all') {
+                getRssData(RSS_RECOMM_BLOGS, 'blogs-list');
+            } else {
+                getRssData(RSS_RECOMM_BLOGS_CATEGORY_PREFIX + selectedValue, 'blogs-list');
+            }
+        }
     };
 
     //标题「开源软件」的点击事件
-    document.getElementById('projectsTitle').onclick = function (event) {
-        scroolToElement(document.getElementById('projectsList'), document.getElementById('projectsList').offsetTop, 100);
-        getRssData(RSS_LATEST_RECOMM_PROJECTS, 'projectsList');
+    document.getElementById('projects-title').onclick = function (event) {
+        var selectedValue = document.getElementById('projects-selector').value;
+        if (selectedValue) {
+            setLoadingLabel('projects-list');
+            if (selectedValue == 'recomm') {
+                getRssData(RSS_RECOMM_PROJECTS, 'projects-list');
+            } else {
+                getRssData(RSS_PROJECTS, 'projects-list');
+            }
+        }
     };
 
     //标题「最新问答」的点击事件
-    document.getElementById('questionsTitle').onclick = function (event) {
-        scroolToElement(document.getElementById('questoinsList'), document.getElementById('questoinsList').offsetTop, 100);
-        getRssData(RSS_LATEST_QUESTIONS, 'questoinsList');
+    document.getElementById('questions-title').onclick = function (event) {
+        var selectedValue = document.getElementById('questions-selector').value;
+        if (selectedValue) {
+            setLoadingLabel('questions-list');
+            getRssData(RSS_QUESTIONS_PREFIX + selectedValue, 'questions-list');
+        }
+    };
+
+    //资讯：下拉框的变化时间
+    document.getElementById('news-selector').onchange = function (event) {
+        document.getElementById('news-title').click();
+    };
+
+    //博客：下拉框的变化时间
+    document.getElementById('blogs-selector').onchange = function (event) {
+        document.getElementById('blogs-title').click();
+    };
+
+    //问答：下拉框的变化时间
+    document.getElementById('questions-selector').onchange = function (event) {
+        document.getElementById('questions-title').click();
+    };
+
+    //软件：下拉框的变化时间
+    document.getElementById('projects-selector').onchange = function (event) {
+        document.getElementById('projects-title').click();
     };
 });

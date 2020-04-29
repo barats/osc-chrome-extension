@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(function () {
 
 chrome.browserAction.onClicked.addListener(function () {
     chrome.tabs.create({
-        url: "oschina.html"
+        url: "html/oschina.html"
     }, function (tab) {
         console.log('tab is:' + tab);
     });
