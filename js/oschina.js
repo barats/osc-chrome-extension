@@ -25,7 +25,7 @@ function getRssData(rssLink, divId) {
                 }
             } catch (error) {
                 console.log('error->', error);
-                setErrorLabel(divId, '数据解析错误' + error.name);
+                setErrorLabel(divId, '数据解析错误');
             } //end of try-catch
         } //end of if(xhr.responseXML)
     };
@@ -157,22 +157,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    //资讯：下拉框的变化时间
+    //资讯：下拉框的变化事件
     document.getElementById('news-selector').onchange = function (event) {
         document.getElementById('news-title').click();
     };
 
-    //博客：下拉框的变化时间
+    //博客：下拉框的变化事件
     document.getElementById('blogs-selector').onchange = function (event) {
         document.getElementById('blogs-title').click();
     };
 
-    //问答：下拉框的变化时间
+    //问答：下拉框的变化事件
     document.getElementById('questions-selector').onchange = function (event) {
         document.getElementById('questions-title').click();
     };
 
-    //软件：下拉框的变化时间
+    //软件：下拉框的变化事件
     document.getElementById('projects-selector').onchange = function (event) {
         document.getElementById('projects-title').click();
     };
