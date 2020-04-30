@@ -1,9 +1,9 @@
-# osc-chrome-extension
+# OSCHINA Chrome Extension
 
 #### 概要
 开源中国 (oschina.net) 谷歌浏览器插件，聚合开源中国每日最新资讯、推荐精品博客、最新收录开源软件等优质内容。
 
-![latest-snapshot](snapshot.jpg)
+![latest-snapshot](https://static.oschina.net/uploads/space/2020/0430/101907_SsbJ_2340783.jpg)
 
 #### 安装使用方式：通过 [Chrome Web Store 下载](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf) (注意打开方式)
 
