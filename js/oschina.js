@@ -226,10 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const arrListContainer  = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
     for(let oItem of arrListContainer) {
         oItem.addEventListener('click', (event) => {
-            console.log(event.target);
-            console.log(event.currentTarget);
             let targetDateset = event.target.dataset;
-            console.log(targetDateset);
             if(event.target.className == "heart"){
                 searchBookmarkFolder().then((bookmarkData) => {
                     // 创建书签
