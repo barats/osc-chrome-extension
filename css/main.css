@@ -166,7 +166,18 @@ a {
     height: 4px !important;
     appearance: none;
 }
-
+/* 收藏图标 */
+.list .heart{
+    position:absolute;
+    right: 6px;
+    top: 2px;
+    font-size: 20px;
+    color: #ddd;
+    cursor: pointer;
+}
+.list .heart:hover{
+    color: red;
+}
 .list::-webkit-scrollbar-thumb {
     cursor: pointer;
     background: rgba(153, 153, 153, 0.5);
@@ -178,6 +189,7 @@ a {
 }
 
 .item {
+    position: relative;
     background: #fff;
     padding: 14px 14px;
     word-break: break-word;

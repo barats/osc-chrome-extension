@@ -13,8 +13,10 @@ function getRssData(rssLink, divId) {
         if (xhr.responseXML) {
             var xmlDoc = xhr.responseXML;
             var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            
             try {
                 var fullCountNode = fullCountSet.iterateNext();
+                console.log(fullCountNode);
                 var divContent = '';
                 while (fullCountNode) {
                     divContent += constructListDiv(constructRssItem(fullCountNode));
@@ -44,21 +46,25 @@ function constructRssItem(xmlNode) {
     var description = xmlNode.getElementsByTagName("description")[0].firstChild.nodeValue;
     var link = xmlNode.getElementsByTagName("link")[0].firstChild.nodeValue;
     var pubDate = xmlNode.getElementsByTagName("pubDate")[0].firstChild.nodeValue;
-    return new RssItem(title, description, link, pubDate);
+    var guid = xmlNode.getElementsByTagName("guid")[0].firstChild.nodeValue;
+    return new RssItem(title, description, link, pubDate,guid);
 }
 
 function constructListDiv(item) {
+    console.log(item);
     var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
+    div += '<div class="heart">❤</div>';
     div += '<div class="description">' + item.description + '</div>';
     div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
 }
 
-function RssItem(title, description, link, pubDate) {
+function RssItem(title, description, link, pubDate,guid) {
     this.title = title;
     this.description = description;
     this.link = link;
     this.pubDate = new Intl.DateTimeFormat('zh-CN').format(Date.parse(pubDate));
+    this.guid = guid;
 }
 
 function createNSResolver(xmlDoc) {

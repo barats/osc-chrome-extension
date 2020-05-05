@@ -16,7 +16,8 @@
     "permissions": [
         "tabs",
         "webNavigation",
-        "https://*.oschina.net/*"
+        "https://*.oschina.net/*",
+        "storage"
     ],
     "incognito": "split",
     "manifest_version": 2
