@@ -16,7 +16,6 @@ function getRssData(rssLink, divId) {
             
             try {
                 var fullCountNode = fullCountSet.iterateNext();
-                console.log(fullCountNode);
                 var divContent = '';
                 while (fullCountNode) {
                     divContent += constructListDiv(constructRssItem(fullCountNode));
@@ -51,9 +50,8 @@ function constructRssItem(xmlNode) {
 }
 
 function constructListDiv(item) {
-    console.log(item);
     var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
-    div += '<div class="heart">❤</div>';
+    div += `<div class="heart" data-title="${item.title}" data-link="${item.link+'?'+UTM_SOURCE_STR}">❤</div>`;
     div += '<div class="description">' + item.description + '</div>';
     div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
@@ -77,6 +75,47 @@ function setLoadingLabel(divId) {
 
 function setErrorLabel(divId, error) {
     document.getElementById(divId).innerHTML = '<p style="color:red;text-align:center;font-size:22px">Error (' + error + ') </p>';
+}
+// 创建书签到书签栏最前端,不传url即为创建文件夹
+function createBookmark(title=CREATE_FOLDER_NNAME,parentId='1',url=''){
+    return new Promise(function(resolve){
+        let prams ={
+            parentId:parentId,
+            index:0,
+            title:title
+        }
+        if(url) prams.url = url;
+        chrome.bookmarks.create(prams,(bookmarkData)=>{
+            resolve(bookmarkData)
+        })
+    });
+  
+}
+// 查找书签文件夹 ,并返回文件夹信息,如果已创建则直接返回文件夹信息
+function searchBookmarkFolder(){
+    return new Promise(function(resolve){
+        // 查找名含CREATE_FOLDER_NNAME的书签
+        chrome.bookmarks.search(CREATE_FOLDER_NNAME,(searchResult) => {
+            const isIncludeBookmark = Array.isArray(searchResult) && searchResult.length > 0;
+            if(isIncludeBookmark){
+                // 存在名为CREATE_FOLDER_NNAME的书签文件夹: title相同 且 不存在url属性
+                let index =  searchResult.findIndex((item) => item.title==CREATE_FOLDER_NNAME&&!item.url)
+                if(index>-1){
+                    resolve(searchResult[index])
+                }else{
+                    createBookmark().then((bookmarkData) => {
+                        resolve(bookmarkData)
+                    })
+                }
+            }else{
+                // 不存在任何包含CREATE_FOLDER_NNAME的书签或文件夹
+                createBookmark().then((bookmarkData) => {
+                    resolve(bookmarkData)
+                })
+
+            }
+        });
+    });
 }
 
 ////////////////// 页面上的各类时间点击  ///////////////////////
@@ -182,4 +221,25 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('projects-selector').onchange = function (event) {
         document.getElementById('projects-title').click();
     };
+    //收藏：心形图标点击事件
+    // 各个list列表容器。数据未加载 ,dom未生成,不能绑定在.heart元素上
+    const arrListContainer  = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
+    for(let oItem of arrListContainer) {
+        oItem.addEventListener('click', (event) => {
+            console.log(event.target);
+            console.log(event.currentTarget);
+            let targetDateset = event.target.dataset;
+            console.log(targetDateset);
+            if(event.target.className == "heart"){
+                searchBookmarkFolder().then((bookmarkData) => {
+                    // 创建书签
+                    // 不带http或https 会抛出错误,添加http://
+                    if(targetDateset.link && !/^http:\/\//.test(targetDateset.link)&&!/^https:\/\//.test(targetDateset.link)){
+                        targetDateset.link = 'http://'+targetDateset.link;
+                    }
+                    createBookmark(targetDateset.title || '无标题',bookmarkData.id,targetDateset.link);
+                })
+            }
+        })
+    }
 });

@@ -27,3 +27,6 @@ const GITEE_REPO_URL = 'https://gitee.com/barat/osc-chrome-extension?' + UTM_SOU
 
 //搜索前缀
 const OSC_SEARCH_PREFIX = 'https://www.oschina.net/search?scope=all&q=';
+
+//书签文件夹名
+const CREATE_FOLDER_NNAME = "开源中国"
