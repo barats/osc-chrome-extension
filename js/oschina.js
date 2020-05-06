@@ -158,7 +158,8 @@ function constructListDiv(item, bookmarks = []) {
     return `
 <div class="item"><a target="_blank" href="${item.link + '?' + UTM_SOURCE_STR}">\
 <div class="title">${stripHtml(item.title)}</div></a>\
-<div class="heart${bookmark ? ' collected' : ''}" data-title="${stripHtml(item.title)}" data-link="${item.link}">❤</div>\
+<div ${bookmark ? (`class="heart collected" data-bookmark-id="${bookmark.id}"`) : ('class="heart"')}\
+data-title="${stripHtml(item.title)}" data-link="${item.link}">❤</div>\
 <div class="description">${stripHtml(item.description)}</div>\
 <div class="pubDate">${item.pubDate}</div></div>`;
 }
@@ -231,7 +232,7 @@ function searchBookmarksFolder() {
 
 let allSubBookmark = [];
 
-function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = true} = {}) {
+function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = false} = {}) {
     return new Promise((resolve) => {
         if (cache && allSubBookmark && allSubBookmark.length > 0) {
             resolve(allSubBookmark);
@@ -427,22 +428,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 各个list列表容器。数据未加载 ,dom未生成,不能绑定在.heart元素上
     const arrListContainer = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
     for (let oItem of arrListContainer) {
-        oItem.addEventListener('click', (event) => {
-            let targetDateset = event.target.dataset;
-            if (event.target.className !== "heart") {
+        oItem.addEventListener('click', async (event) => {
+            const ele = event.target;
+            let targetDateset = ele.dataset;
+            if (targetDateset.bookmarkId) {
+                chrome.bookmarks.remove(targetDateset.bookmarkId, async (bookmarkData) => {
+                    console.log(bookmarkData);
+                    await getAllSubBookmark()
+                    ele.removeAttribute('data-bookmark-id')
+                    ele.className = ele.className.replace(' collected', '');
+                });
                 return;
             }
-            searchBookmarksFolder().then((bookmarkData) => {
-                // 创建书签 不带http或https 会抛出错误,添加http://
-                if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
-                    targetDateset.link = 'http://' + targetDateset.link;
-                }
-                createBookmark(targetDateset.title || '无标题', bookmarkData.id, targetDateset.link).then(async () => {
-                    await getAllSubBookmark({cache: false})
-                    event.target.className = event.target.className + ' collected'
-
-                });
-            });
+            const bookmarkFolder = await searchBookmarksFolder();
+            // 创建书签 不带http或https 会抛出错误,添加http://
+            if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
+                targetDateset.link = 'http://' + targetDateset.link;
+            }
+            const bookmarkData = await createBookmark(targetDateset.title || '无标题', bookmarkFolder.id, targetDateset.link);
+            await getAllSubBookmark()
+            ele.setAttribute('data-bookmark-id', bookmarkData.id)
+            ele.className = ele.className + ' collected'
         });
     }
 });
