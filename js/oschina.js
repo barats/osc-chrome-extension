@@ -154,11 +154,17 @@ function constructRssItem(xmlNode) {
 }
 
 function constructListDiv(item, bookmarks = []) {
-    const bookmark = bookmarks.find(b => item.link === b.url);
-    return `
-<div class="item"><a target="_blank" href="${item.link + '?' + UTM_SOURCE_STR}">\
+	const bookmark = bookmarks.find(b => item.link === b.url);
+	return `
+<div class="item"><a target="_blank" href="${item.link +
+		'?' +
+		UTM_SOURCE_STR}">\
 <div class="title">${stripHtml(item.title)}</div></a>\
-<div ${bookmark ? (`class="icon icon-heart-fill collected" data-bookmark-id="${bookmark.id}"`) : ('class="icon icon-heart-fill"')}\
+<div is-icon-heart ${
+		bookmark
+			? `class="icon icon-heart-fill collected"  data-bookmark-id="${bookmark.id}"`
+			: 'class="icon icon-heart-fill"'
+	}\
 data-title="${stripHtml(item.title)}" data-link="${item.link}"></div>\
 <div class="description">${stripHtml(item.description)}</div>\
 <div class="pubDate">${item.pubDate}</div></div>`;
@@ -435,6 +441,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 		oItem.addEventListener('click', async event => {
 			const ele = event.target;
 			let targetDataset = ele.dataset;
+			const isIconHeart = ele.hasAttribute('is-icon-heart');
+			// 判断事件是否在 icon-heart上触发
+			if (!isIconHeart) {
+				return false;
+			}
 			if (targetDataset.bookmarkId) {
 				chrome.bookmarks.remove(
 					targetDataset.bookmarkId,
