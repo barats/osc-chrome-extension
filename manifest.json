@@ -17,7 +17,8 @@
         "tabs",
         "webNavigation",
         "https://*.oschina.net/*",
-        "bookmarks"
+        "bookmarks",
+        "storage"
     ],
     "incognito": "split",
     "manifest_version": 2
