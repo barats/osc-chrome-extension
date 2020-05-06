@@ -424,31 +424,46 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('projects-title').click();
     };
 
-    //收藏：心形图标点击事件
+    // 收藏：心形图标点击事件
     // 各个list列表容器。数据未加载 ,dom未生成,不能绑定在.heart元素上
-    const arrListContainer = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
-    for (let oItem of arrListContainer) {
-        oItem.addEventListener('click', async (event) => {
-            const ele = event.target;
-            let targetDateset = ele.dataset;
-            if (targetDateset.bookmarkId) {
-                chrome.bookmarks.remove(targetDateset.bookmarkId, async (bookmarkData) => {
-                    console.log(bookmarkData);
-                    await getAllSubBookmark()
-                    ele.removeAttribute('data-bookmark-id')
-                    ele.className = ele.className.replace(' collected', '');
-                });
-                return;
-            }
-            const bookmarkFolder = await searchBookmarksFolder();
-            // 创建书签 不带http或https 会抛出错误,添加http://
-            if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
-                targetDateset.link = 'http://' + targetDateset.link;
-            }
-            const bookmarkData = await createBookmark(targetDateset.title || '无标题', bookmarkFolder.id, targetDateset.link);
-            await getAllSubBookmark()
-            ele.setAttribute('data-bookmark-id', bookmarkData.id)
-            ele.className = ele.className + ' collected'
-        });
-    }
+    const arrListContainer = [
+		...document.querySelectorAll(
+			'#news-list,#blogs-list,#projects-list,#questions-list'
+		)
+	];
+	for (let oItem of arrListContainer) {
+		oItem.addEventListener('click', async event => {
+			const ele = event.target;
+			let targetDataset = ele.dataset;
+			if (targetDataset.bookmarkId) {
+				chrome.bookmarks.remove(
+					targetDataset.bookmarkId,
+					async bookmarkData => {
+						console.log(bookmarkData);
+						await getAllSubBookmark();
+						ele.removeAttribute('data-bookmark-id');
+						ele.className = ele.className.replace(' collected', '');
+					}
+				);
+				return;
+			}
+			const bookmarkFolder = await searchBookmarksFolder();
+			// 创建书签 不带http或https 会抛出错误,添加http://
+			if (
+				targetDataset.link &&
+				!/^http:\/\//.test(targetDataset.link) &&
+				!/^https:\/\//.test(targetDataset.link)
+			) {
+				targetDataset.link = 'http://' + targetDataset.link;
+			}
+			const bookmarkData = await createBookmark(
+				targetDataset.title || '无标题',
+				bookmarkFolder.id,
+				targetDataset.link
+			);
+			await getAllSubBookmark();
+			ele.setAttribute('data-bookmark-id', bookmarkData.id);
+			ele.className = ele.className + ' collected';
+		});
+	}
 });
