@@ -158,8 +158,8 @@ function constructListDiv(item, bookmarks = []) {
     return `
 <div class="item"><a target="_blank" href="${item.link + '?' + UTM_SOURCE_STR}">\
 <div class="title">${stripHtml(item.title)}</div></a>\
-<div ${bookmark ? (`class="heart collected" data-bookmark-id="${bookmark.id}"`) : ('class="heart"')}\
-data-title="${stripHtml(item.title)}" data-link="${item.link}">❤</div>\
+<div ${bookmark ? (`class="icon icon-heart-fill collected" data-bookmark-id="${bookmark.id}"`) : ('class="icon icon-heart-fill"')}\
+data-title="${stripHtml(item.title)}" data-link="${item.link}"></div>\
 <div class="description">${stripHtml(item.description)}</div>\
 <div class="pubDate">${item.pubDate}</div></div>`;
 }
