@@ -13,7 +13,7 @@ function getRssData(rssLink, divId) {
         if (xhr.responseXML) {
             var xmlDoc = xhr.responseXML;
             var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-            
+
             try {
                 var fullCountNode = fullCountSet.iterateNext();
                 var divContent = '';
@@ -38,7 +38,7 @@ function getRssData(rssLink, divId) {
 
     xhr.open("GET", rssLink, true);
     xhr.send(null);
-} //end of getOscData
+} //end of function getRssData()
 
 function constructRssItem(xmlNode) {
     var title = xmlNode.getElementsByTagName("title")[0].firstChild.nodeValue;
@@ -46,18 +46,19 @@ function constructRssItem(xmlNode) {
     var link = xmlNode.getElementsByTagName("link")[0].firstChild.nodeValue;
     var pubDate = xmlNode.getElementsByTagName("pubDate")[0].firstChild.nodeValue;
     var guid = xmlNode.getElementsByTagName("guid")[0].firstChild.nodeValue;
-    return new RssItem(title, description, link, pubDate,guid);
+    return new RssItem(title, description, link, pubDate, guid);
 }
 
 function constructListDiv(item) {
-    var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '"><div class="title">' + item.title + '</div></a>';
-    div += `<div class="heart" data-title="${item.title}" data-link="${item.link+'?'+UTM_SOURCE_STR}">❤</div>`;
-    div += '<div class="description">' + item.description + '</div>';
+    var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '">';
+    div += '<div class="title">' + stripHtml(item.title) + '</div></a>';
+    div += '<div class="heart" data-title="' + stripHtml(item.title) + '" data-link="' + encodeURIComponent(item.link) + '">❤</div>';
+    div += '<div class="description">' + stripHtml(item.description) + '</div>';
     div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
 }
 
-function RssItem(title, description, link, pubDate,guid) {
+function RssItem(title, description, link, pubDate, guid) {
     this.title = title;
     this.description = description;
     this.link = link;
@@ -76,46 +77,50 @@ function setLoadingLabel(divId) {
 function setErrorLabel(divId, error) {
     document.getElementById(divId).innerHTML = '<p style="color:red;text-align:center;font-size:22px">Error (' + error + ') </p>';
 }
-// 创建书签到书签栏最前端,不传url即为创建文件夹
-function createBookmark(title=CREATE_FOLDER_NNAME,parentId='1',url=''){
-    return new Promise(function(resolve){
-        let prams ={
-            parentId:parentId,
-            index:0,
-            title:title
-        }
-        if(url) prams.url = url;
-        chrome.bookmarks.create(prams,(bookmarkData)=>{
-            resolve(bookmarkData)
-        })
-    });
-  
-}
-// 查找书签文件夹 ,并返回文件夹信息,如果已创建则直接返回文件夹信息
-function searchBookmarkFolder(){
-    return new Promise(function(resolve){
-        // 查找名含CREATE_FOLDER_NNAME的书签
-        chrome.bookmarks.search(CREATE_FOLDER_NNAME,(searchResult) => {
-            const isIncludeBookmark = Array.isArray(searchResult) && searchResult.length > 0;
-            if(isIncludeBookmark){
-                // 存在名为CREATE_FOLDER_NNAME的书签文件夹: title相同 且 不存在url属性
-                let index =  searchResult.findIndex((item) => item.title==CREATE_FOLDER_NNAME&&!item.url)
-                if(index>-1){
-                    resolve(searchResult[index])
-                }else{
-                    createBookmark().then((bookmarkData) => {
-                        resolve(bookmarkData)
-                    })
-                }
-            }else{
-                // 不存在任何包含CREATE_FOLDER_NNAME的书签或文件夹
-                createBookmark().then((bookmarkData) => {
-                    resolve(bookmarkData)
-                })
 
-            }
+// 创建书签到书签栏最前端,不传 url 即为创建文件夹
+function createBookmark(title = OSC_BOOKMARKS_NAME, parentId = '1', url = '') {
+    return new Promise(function (resolve) {
+        let prams = {
+            parentId: parentId,
+            index: 0,
+            title: title
+        };
+
+        if (url) {
+            prams.url = url;
+        }
+
+        chrome.bookmarks.create(prams, (bookmarkData) => {
+            resolve(bookmarkData);
         });
     });
+
+}
+// 查找书签文件夹 ,并返回文件夹信息,如果已创建则直接返回文件夹信息
+function searchBookmarksFolder() {
+    return new Promise(function (resolve) {
+        // 查找名含 OSC_BOOKMARKS_NAME 的书签
+        chrome.bookmarks.search(OSC_BOOKMARKS_NAME, (searchResult) => {
+            const isIncludeBookmark = Array.isArray(searchResult) && searchResult.length > 0;
+            if (isIncludeBookmark) {
+                // 存在名为 OSC_BOOKMARKS_NAME 的书签文件夹: title相同 且 不存在url属性
+                let index = searchResult.findIndex((item) => item.title == OSC_BOOKMARKS_NAME && !item.url)
+                if (index > -1) {
+                    resolve(searchResult[index])
+                } else {
+                    createBookmark().then((bookmarkData) => {
+                        resolve(bookmarkData);
+                    })
+                }
+            } else {
+                // 不存在任何包含 OSC_BOOKMARKS_NAME 的书签或文件夹
+                createBookmark().then((bookmarkData) => {
+                    resolve(bookmarkData);
+                })
+            } //end of if-else
+        }); //end of Promise()
+    }); //end of function searchBookmarksFolder
 }
 
 ////////////////// 页面上的各类时间点击  ///////////////////////
@@ -221,22 +226,22 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('projects-selector').onchange = function (event) {
         document.getElementById('projects-title').click();
     };
+
     //收藏：心形图标点击事件
     // 各个list列表容器。数据未加载 ,dom未生成,不能绑定在.heart元素上
-    const arrListContainer  = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
-    for(let oItem of arrListContainer) {
+    const arrListContainer = [...document.querySelectorAll("#news-list,#blogs-list,#projects-list,#questions-list")];
+    for (let oItem of arrListContainer) {
         oItem.addEventListener('click', (event) => {
             let targetDateset = event.target.dataset;
-            if(event.target.className == "heart"){
-                searchBookmarkFolder().then((bookmarkData) => {
-                    // 创建书签
-                    // 不带http或https 会抛出错误,添加http://
-                    if(targetDateset.link && !/^http:\/\//.test(targetDateset.link)&&!/^https:\/\//.test(targetDateset.link)){
-                        targetDateset.link = 'http://'+targetDateset.link;
+            if (event.target.className == "heart") {
+                searchBookmarksFolder().then((bookmarkData) => {
+                    // 创建书签 不带http或https 会抛出错误,添加http://
+                    if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
+                        targetDateset.link = 'http://' + targetDateset.link;
                     }
-                    createBookmark(targetDateset.title || '无标题',bookmarkData.id,targetDateset.link);
-                })
+                    createBookmark(targetDateset.title || '无标题', bookmarkData.id, targetDateset.link);
+                });
             }
-        })
+        });
     }
 });
