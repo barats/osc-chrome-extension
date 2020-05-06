@@ -167,19 +167,25 @@ a {
     appearance: none;
 }
 /* 收藏图标 */
-.list .heart{
-    position:absolute;
+.list .heart {
+    position: absolute;
     width: 20px;
     height: 20px;
     right: 3px;
     top: 2px;
     font-size: 20px;
-    color: rgba(0,0,0,0.1);
+    color: rgba(0, 0, 0, 0.1);
     cursor: pointer;
 }
-.list .heart:hover{
-    color: red;
+
+.list .heart:hover {
+    color: #f99;
 }
+
+.list .heart.collected {
+    color: #f00;
+}
+
 .list::-webkit-scrollbar-thumb {
     cursor: pointer;
     background: rgba(153, 153, 153, 0.5);
