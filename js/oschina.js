@@ -52,7 +52,7 @@ function constructRssItem(xmlNode) {
 function constructListDiv(item) {
     var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '">';
     div += '<div class="title">' + stripHtml(item.title) + '</div></a>';
-    div += '<div class="heart" data-title="' + stripHtml(item.title) + '" data-link="' + encodeURIComponent(item.link) + '">❤</div>';
+    div += '<div class="heart" data-title="' + stripHtml(item.title) + '" data-link="' + item.link + '">❤</div>';
     div += '<div class="description">' + stripHtml(item.description) + '</div>';
     div += '<div class="pubDate">' + item.pubDate + '</div></div>';
     return div;
