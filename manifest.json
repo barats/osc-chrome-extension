@@ -1,7 +1,7 @@
 {
     "name": "开源中国",
     "version": "1.8",
-    "version_name": "1.8.0 (build 2005061523)",
+    "version_name": "1.8.0 (build 2005061751)",
     "description": "开源中国(oschina.net) Chrome 浏览器插件",
     "background": {
         "scripts": ["js/background.js"],
