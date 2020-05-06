@@ -17,6 +17,20 @@ a {
     text-decoration: none;
 }
 
+
+.icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    background: #303030;
+}
+.icon.icon-heart-fill {
+    -webkit-mask-image: url(heart-fill.svg);
+}
+
+
 .body-container {
     display: flex;
     flex-direction: column;
@@ -167,24 +181,22 @@ a {
     appearance: none;
 }
 /* 收藏图标 */
-.list .heart {
+.list .icon-heart-fill {
     position: absolute;
     width: 20px;
     height: 20px;
     right: 3px;
     top: 2px;
-    font-size: 20px;
-    color: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    user-select: none;
 }
 
-.list .heart:hover {
-    color: #f99;
+.list .icon-heart-fill:hover {
+    background: #f99;
 }
 
-.list .heart.collected {
-    color: #f00;
+.list .icon-heart-fill.collected {
+    background: #f00;
 }
 
 .list::-webkit-scrollbar-thumb {
