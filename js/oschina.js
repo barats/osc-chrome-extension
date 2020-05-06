@@ -1,3 +1,105 @@
+let Utils = {
+    object: {
+        isNull(obj) {
+            return typeof obj === "undefined" || obj === null;
+        },
+        isNotNull(obj) {
+            return !this.isNull(obj);
+        }
+    },
+    chromePlugin: {
+        placeholderReg: '\\${([^{}]+)}',
+        storagePrefix: {
+            '_': '',
+            'config': 'config_'
+        },
+        handleStorageKeyPrefix({key, prefix = '_'} = {}) {
+            let text = '';
+            if (this.storagePrefix[prefix]) {
+                text += this.storagePrefix['_'];
+                if (prefix !== '_') {
+                    text += this.storagePrefix[prefix];
+                }
+            }
+            return text + key
+        },
+        handleStorageKeysPrefix({keys, prefix} = {}) {
+            if (!this.storagePrefix[prefix]) return keys;
+            if (typeof keys === "string") {
+                keys = [keys];
+            }
+            if (keys instanceof Array) {
+                for (let i = 0, len = keys.length; i < len; i++) {
+                    keys[i] = this.handleStorageKeyPrefix({key: keys[i], prefix});
+                }
+            } else {
+                keys = null;
+            }
+            return keys;
+        },
+        async storageGet({keys, prefix = null} = {}) {
+            return new Promise((resolve, reject) => {
+                const isOne = typeof keys === "string";
+                try {
+                    keys = this.handleStorageKeysPrefix({keys, prefix});
+                    chrome.storage.local.get(keys, (json) => {
+                        if (!json) {
+                            resolve(json)
+                            return
+                        }
+                        if (isOne && keys) {
+                            resolve(json[keys[0]])
+                        } else {
+                            const prefixStr = this.handleStorageKeyPrefix({key: '', prefix});
+                            const newJson = {};
+                            for (const jk in json) {
+                                if (!json.hasOwnProperty(jk)) continue;
+                                if (!jk.startsWith(prefixStr)) continue;
+                                newJson[jk.replace(prefixStr, '')] = json[jk];
+                            }
+                            resolve(newJson)
+                        }
+                    })
+                } catch (e) {
+                    reject(e);
+                }
+            })
+        },
+        async storageSet({map, prefix = null} = {}) {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (this.storagePrefix[prefix]) {
+                        const newMap = {};
+                        for (let key in map) {
+                            if (!map.hasOwnProperty(key)) continue;
+                            newMap[this.handleStorageKeyPrefix({key, prefix})] = map[key];
+                        }
+                        map = newMap;
+                    }
+                    chrome.storage.local.set(map, () => {
+                        resolve();
+                    })
+                } catch (e) {
+                    reject(e);
+                }
+            })
+        },
+        async storageRemove({keys, prefix = null} = {}) {
+            return new Promise((resolve, reject) => {
+                try {
+                    keys = this.handleStorageKeysPrefix({keys, prefix});
+                    chrome.storage.local.remove(keys, () => {
+                        resolve();
+                    })
+                } catch (e) {
+                    reject(e);
+                }
+            })
+        }
+    }
+};
+
+
 function getRssData(rssLink, divId) {
 
     var xhr = new XMLHttpRequest();
@@ -100,6 +202,7 @@ function createBookmark(title = OSC_BOOKMARKS_NAME, parentId = '1', url = '') {
     });
 
 }
+
 // 查找书签文件夹 ,并返回文件夹信息,如果已创建则直接返回文件夹信息
 function searchBookmarksFolder() {
     return new Promise(function (resolve) {
@@ -165,15 +268,82 @@ function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = true} = {}) {
     });
 }
 
-////////////////// 页面上的各类时间点击  ///////////////////////
-getAllSubBookmark();
-document.addEventListener('DOMContentLoaded', function () {
+/**
+ * 获取开源资讯数据
+ * @param selectedValue
+ */
+function getRssNewsRssData(selectedValue = 'all') {
+    Utils.chromePlugin.storageSet({map: {'rssNewsSelected': selectedValue}, prefix: 'config'})
+    handleSelect('news-selector', selectedValue);
+    setLoadingLabel('news-list');
+    if (selectedValue === 'all') {
+        getRssData(RSS_NEWS, 'news-list');
+    } else {
+        getRssData(RSS_NEWS_PREFIX + selectedValue, 'news-list');
+    }
+}
 
+/**
+ * 获取推荐博客数据
+ * @param selectedValue
+ */
+function getBlogsListRssData(selectedValue = 'all') {
+    Utils.chromePlugin.storageSet({map: {'blogsListSelected': selectedValue}, prefix: 'config'})
+    handleSelect('blogs-selector', selectedValue);
+    setLoadingLabel('blogs-list');
+    if (selectedValue === 'all') {
+        getRssData(RSS_RECOMM_BLOGS, 'blogs-list');
+    } else {
+        getRssData(RSS_RECOMM_BLOGS_CATEGORY_PREFIX + selectedValue, 'blogs-list');
+    }
+}
+
+/**
+ * 获取开源软件数据
+ * @param selectedValue
+ */
+function getProjectsListRssData(selectedValue = 'all') {
+    Utils.chromePlugin.storageSet({map: {'projectsListSelected': selectedValue}, prefix: 'config'})
+    handleSelect('projects-selector', selectedValue);
+    setLoadingLabel('projects-list');
+    if (selectedValue === 'recomm') {
+        getRssData(RSS_RECOMM_PROJECTS, 'projects-list');
+    } else {
+        getRssData(RSS_PROJECTS, 'projects-list');
+    }
+}
+
+/**
+ * 获取最新问答数据
+ * @param selectedValue
+ */
+function getQuestionsListRssData(selectedValue = '1') {
+    Utils.chromePlugin.storageSet({map: {'questionsListSelected': selectedValue}, prefix: 'config'})
+    handleSelect('questions-selector', selectedValue);
+    setLoadingLabel('questions-list');
+    getRssData(RSS_QUESTIONS_PREFIX + selectedValue, 'questions-list');
+}
+
+function handleSelect(selectId, val) {
+    const ele = document.getElementById(selectId);
+    if (ele.value === val) {
+        return;
+    }
+    ele.value = val;
+}
+
+////////////////// 页面上的各类时间点击  ///////////////////////
+Utils.chromePlugin.storagePrefix._ = '_ydA2ge_';
+getAllSubBookmark();
+document.addEventListener('DOMContentLoaded', async function () {
+    const config = await Utils.chromePlugin.storageGet({
+        prefix: 'config'
+    }) || {};
     // DOM内容加载完成之后，开始获取数据并展示
-    getRssData(RSS_NEWS, 'news-list'); //最新资讯
-    getRssData(RSS_QUESTIONS_PREFIX + "1", 'questions-list'); //最新发布问答
-    getRssData(RSS_RECOMM_BLOGS, 'blogs-list'); //最新推荐博客
-    getRssData(RSS_PROJECTS, 'projects-list'); //最新收录开源软件
+    getRssNewsRssData(config.rssNewsSelected); //最新资讯
+    getQuestionsListRssData(config.questionsListSelected); //最新发布问答
+    getBlogsListRssData(config.blogsListSelected); //最新推荐博客
+    getProjectsListRssData(config.projectsListSelected); //最新收录开源软件
 
     // //下载源码按钮点击事件
     document.getElementById('btn-download').onclick = function () {
@@ -205,12 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('news-title').onclick = function (event) {
         var selectedValue = document.getElementById('news-selector').value;
         if (selectedValue) {
-            setLoadingLabel('news-list');
-            if (selectedValue == 'all') {
-                getRssData(RSS_NEWS, 'news-list');
-            } else {
-                getRssData(RSS_NEWS_PREFIX + selectedValue, 'news-list');
-            }
+            getRssNewsRssData(selectedValue)
         }
     };
 
@@ -218,12 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('blogs-title').onclick = function (event) {
         var selectedValue = document.getElementById('blogs-selector').value;
         if (selectedValue) {
-            setLoadingLabel('blogs-list');
-            if (selectedValue == 'all') {
-                getRssData(RSS_RECOMM_BLOGS, 'blogs-list');
-            } else {
-                getRssData(RSS_RECOMM_BLOGS_CATEGORY_PREFIX + selectedValue, 'blogs-list');
-            }
+            getBlogsListRssData(selectedValue)
         }
     };
 
@@ -231,12 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('projects-title').onclick = function (event) {
         var selectedValue = document.getElementById('projects-selector').value;
         if (selectedValue) {
-            setLoadingLabel('projects-list');
-            if (selectedValue == 'recomm') {
-                getRssData(RSS_RECOMM_PROJECTS, 'projects-list');
-            } else {
-                getRssData(RSS_PROJECTS, 'projects-list');
-            }
+            getProjectsListRssData(selectedValue);
         }
     };
 
@@ -244,8 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('questions-title').onclick = function (event) {
         var selectedValue = document.getElementById('questions-selector').value;
         if (selectedValue) {
-            setLoadingLabel('questions-list');
-            getRssData(RSS_QUESTIONS_PREFIX + selectedValue, 'questions-list');
+            getQuestionsListRssData(selectedValue)
         }
     };
 
