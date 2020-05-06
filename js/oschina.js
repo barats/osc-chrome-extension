@@ -11,23 +11,25 @@ function getRssData(rssLink, divId) {
         }
 
         if (xhr.responseXML) {
-            var xmlDoc = xhr.responseXML;
-            var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+            getAllSubBookmark().then((allSubBookmark) => {
+                var xmlDoc = xhr.responseXML;
+                var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+                try {
+                    var fullCountNode = fullCountSet.iterateNext();
+                    var divContent = '';
+                    while (fullCountNode) {
+                        divContent += constructListDiv(constructRssItem(fullCountNode), allSubBookmark);
+                        fullCountNode = fullCountSet.iterateNext();
+                    }
+                    if (divContent) {
+                        document.getElementById(divId).innerHTML = divContent;
+                    }
+                } catch (error) {
+                    console.log('error->', error);
+                    setErrorLabel(divId, '数据解析错误');
+                } //end of try-catch
+            });
 
-            try {
-                var fullCountNode = fullCountSet.iterateNext();
-                var divContent = '';
-                while (fullCountNode) {
-                    divContent += constructListDiv(constructRssItem(fullCountNode));
-                    fullCountNode = fullCountSet.iterateNext();
-                }
-                if (divContent) {
-                    document.getElementById(divId).innerHTML = divContent;
-                }
-            } catch (error) {
-                console.log('error->', error);
-                setErrorLabel(divId, '数据解析错误');
-            } //end of try-catch
         } //end of if(xhr.responseXML)
     };
 
@@ -49,13 +51,14 @@ function constructRssItem(xmlNode) {
     return new RssItem(title, description, link, pubDate, guid);
 }
 
-function constructListDiv(item) {
-    var div = '<div class="item"><a target="_blank" href="' + item.link + '?' + UTM_SOURCE_STR + '">';
-    div += '<div class="title">' + stripHtml(item.title) + '</div></a>';
-    div += '<div class="heart" data-title="' + stripHtml(item.title) + '" data-link="' + item.link + '">❤</div>';
-    div += '<div class="description">' + stripHtml(item.description) + '</div>';
-    div += '<div class="pubDate">' + item.pubDate + '</div></div>';
-    return div;
+function constructListDiv(item, bookmarks = []) {
+    const bookmark = bookmarks.find(b => item.link === b.url);
+    return `
+<div class="item"><a target="_blank" href="${item.link + '?' + UTM_SOURCE_STR}">\
+<div class="title">${stripHtml(item.title)}</div></a>\
+<div class="heart${bookmark ? ' collected' : ''}" data-title="${stripHtml(item.title)}" data-link="${item.link}">❤</div>\
+<div class="description">${stripHtml(item.description)}</div>\
+<div class="pubDate">${item.pubDate}</div></div>`;
 }
 
 function RssItem(title, description, link, pubDate, guid) {
@@ -105,7 +108,7 @@ function searchBookmarksFolder() {
             const isIncludeBookmark = Array.isArray(searchResult) && searchResult.length > 0;
             if (isIncludeBookmark) {
                 // 存在名为 OSC_BOOKMARKS_NAME 的书签文件夹: title相同 且 不存在url属性
-                let index = searchResult.findIndex((item) => item.title == OSC_BOOKMARKS_NAME && !item.url)
+                let index = searchResult.findIndex((item) => item.title === OSC_BOOKMARKS_NAME && !item.url)
                 if (index > -1) {
                     resolve(searchResult[index])
                 } else {
@@ -123,8 +126,47 @@ function searchBookmarksFolder() {
     }); //end of function searchBookmarksFolder
 }
 
-////////////////// 页面上的各类时间点击  ///////////////////////
+let allSubBookmark = [];
 
+function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = true} = {}) {
+    return new Promise((resolve) => {
+        if (cache && allSubBookmark && allSubBookmark.length > 0) {
+            resolve(allSubBookmark);
+        }
+        chrome.bookmarks.search(title, async (searchResult) => {
+            if (!searchResult) {
+                resolve([]);
+            }
+            const bookmarks = [];
+            const dirs = searchResult.filter((item) => item.title === title && !item.url);
+            for (let i = 0, len = dirs.length; i < len; i++) {
+                const dir = dirs[i];
+                await new Promise(resolveSubTree => chrome.bookmarks.getSubTree(dir.id, async (subTree) => {
+                    if (!subTree) {
+                        resolveSubTree();
+                    }
+                    const HandleTree = (items) => {
+                        items.forEach(item => {
+                            if (item.children) {
+                                HandleTree(item.children)
+                            } else {
+                                if (!item.url) return;
+                                bookmarks.push({...item})
+                            }
+                        })
+                    }
+                    HandleTree(subTree);
+                    resolveSubTree();
+                }))
+            }
+            allSubBookmark = bookmarks;
+            resolve(bookmarks)
+        });
+    });
+}
+
+////////////////// 页面上的各类时间点击  ///////////////////////
+getAllSubBookmark();
 document.addEventListener('DOMContentLoaded', function () {
 
     // DOM内容加载完成之后，开始获取数据并展示
@@ -233,15 +275,20 @@ document.addEventListener('DOMContentLoaded', function () {
     for (let oItem of arrListContainer) {
         oItem.addEventListener('click', (event) => {
             let targetDateset = event.target.dataset;
-            if (event.target.className == "heart") {
-                searchBookmarksFolder().then((bookmarkData) => {
-                    // 创建书签 不带http或https 会抛出错误,添加http://
-                    if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
-                        targetDateset.link = 'http://' + targetDateset.link;
-                    }
-                    createBookmark(targetDateset.title || '无标题', bookmarkData.id, targetDateset.link);
-                });
+            if (event.target.className !== "heart") {
+                return;
             }
+            searchBookmarksFolder().then((bookmarkData) => {
+                // 创建书签 不带http或https 会抛出错误,添加http://
+                if (targetDateset.link && !/^http:\/\//.test(targetDateset.link) && !/^https:\/\//.test(targetDateset.link)) {
+                    targetDateset.link = 'http://' + targetDateset.link;
+                }
+                createBookmark(targetDateset.title || '无标题', bookmarkData.id, targetDateset.link).then(async () => {
+                    await getAllSubBookmark({cache: false})
+                    event.target.className = event.target.className + ' collected'
+
+                });
+            });
         });
     }
 });
