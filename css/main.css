@@ -115,16 +115,17 @@ a {
 
 .panel-container {
     flex: 1;
-    min-height: 0;
     display: flex;
     flex-direction: row;
     height: 100%;
     padding: 14px;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: auto;
 }
 
 .panel {
     width: 25%;
+    min-width: 260px;
     padding: 8px;
     box-sizing: border-box;
 }
