@@ -162,8 +162,8 @@ function constructListDiv(item, bookmarks = []) {
 <div class="title">${stripHtml(item.title)}</div></a>\
 <div is-icon-heart ${
 		bookmark
-			? `class="icon icon-heart-fill collected"  data-bookmark-id="${bookmark.id}"`
-			: 'class="icon icon-heart-fill"'
+			? `class="icon-heart-fill collected"  data-bookmark-id="${bookmark.id}"`
+			: 'class="icon-heart-fill"'
 	}\
 data-title="${stripHtml(item.title)}" data-link="${item.link}"></div>\
 <div class="description">${stripHtml(item.description)}</div>\
