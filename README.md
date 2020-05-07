@@ -5,9 +5,18 @@
 
 ![latest-snapshot](https://oscimg.oschina.net/oscnet/up-e62572addce0fb4d932031e138b3587a1aa.JPEG)
 
-#### 安装使用方式：通过 [Chrome Web Store 下载](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf) (注意打开方式)
+#### 安装方法 1： 通过 [Chrome Web Store ](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf) 安装
+1. 访问 [Chrome Web Store](https://chrome.google.com/webstore/detail/%E5%BC%80%E6%BA%90%E4%B8%AD%E5%9B%BD/ppagmdehdibgipjkjbijngfphoboggdf) （注意打开方式）
+2. 在页面中选择「Add to Chrome」
+3. 如果觉得本插件不错，欢迎给予五星好评
 
-#### 安装使用方式：通过源码安装
+#### 安装方法 2: 下载 [发行版](https://gitee.com/barat/osc-chrome-extension/releases) 安装
+1. 下载 [最新发行版](https://gitee.com/barat/osc-chrome-extension/releases) zip 文件到本地
+2. 打开 Chrome 浏览器 Extensions 页面
+3. 打开「Developer mode」
+4. 将下载的 zip 文件直接拖拽入 Chrome 浏览器 Extensions 页面
+
+#### 安装方式 3：通过源码安装
 1. git clone 本项目
 2. 打开 Chrome 浏览器 Extensions 页面
 3. 打开「Developer mode」
@@ -18,7 +27,7 @@
 
 1.  fork 本仓库
 2.  新建 feature_xxx 分支或 bugfix_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+3.  修复发现的 bug 或新增功能并提交代码
+4.  新建 Pull Request 等待审核
 
 #### 最后，欢迎吐槽！ Enjoy. 
