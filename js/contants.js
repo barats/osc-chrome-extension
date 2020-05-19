@@ -33,7 +33,8 @@ const OSC_BOOKMARKS_NAME = "开源中国";
 
 function stripHtml(html) {
     var doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || '';
+    doc.body.innerText = (doc.body.textContent || '').trim();
+    return doc.body.innerHTML;
 }
 
 function stripXml(xml) {
