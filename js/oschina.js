@@ -112,9 +112,18 @@ function getRssData(rssLink, divId) {
             return;
         }
 
-        if (xhr.responseXML) {
+        var responseXML = xhr.responseXML;
+        if (!responseXML) {
+            try {
+                responseXML = (new DOMParser()).parseFromString(xhr.responseText.replace(/[\x00-\x1F]/g, ' '), 'text/xml');
+            } catch (e) {
+                console.log('error->', error);
+                setErrorLabel(divId, 'text转换xml出错');
+            }
+        }
+        if (responseXML) {
             getAllSubBookmark().then((allSubBookmark) => {
-                var xmlDoc = xhr.responseXML;
+                var xmlDoc = responseXML;
                 var fullCountSet = xmlDoc.evaluate("//channel/item", xmlDoc, createNSResolver, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                 try {
                     var fullCountNode = fullCountSet.iterateNext();
@@ -433,48 +442,48 @@ document.addEventListener('DOMContentLoaded', async function () {
     // 收藏：心形图标点击事件
     // 各个list列表容器。数据未加载 ,dom未生成,不能绑定在.heart元素上
     const arrListContainer = [
-		...document.querySelectorAll(
-			'#news-list,#blogs-list,#projects-list,#questions-list'
-		)
-	];
-	for (let oItem of arrListContainer) {
-		oItem.addEventListener('click', async event => {
-			const ele = event.target;
-			let targetDataset = ele.dataset;
-			const isIconHeart = ele.hasAttribute('is-icon-heart');
-			// 判断事件是否在 icon-heart上触发
-			if (!isIconHeart) {
-				return false;
-			}
-			if (targetDataset.bookmarkId) {
-				chrome.bookmarks.remove(
-					targetDataset.bookmarkId,
-					async bookmarkData => {
-						console.log(bookmarkData);
-						await getAllSubBookmark();
-						ele.removeAttribute('data-bookmark-id');
-						ele.className = ele.className.replace(' collected', '');
-					}
-				);
-				return;
-			}
-			const bookmarkFolder = await searchBookmarksFolder();
-			// 创建书签 不带http或https 会抛出错误,添加http://
-			if (
-				targetDataset.link &&
-				!/^http:\/\//.test(targetDataset.link) &&
-				!/^https:\/\//.test(targetDataset.link)
-			) {
-				targetDataset.link = 'http://' + targetDataset.link;
-			}
-			const bookmarkData = await createBookmark(
-				targetDataset.title || '无标题',
-				bookmarkFolder.id,
-				targetDataset.link
-			);
-			await getAllSubBookmark();
-			ele.setAttribute('data-bookmark-id', bookmarkData.id);
-			ele.className = ele.className + ' collected';
-		});
-	}
+        ...document.querySelectorAll(
+            '#news-list,#blogs-list,#projects-list,#questions-list'
+        )
+    ];
+    for (let oItem of arrListContainer) {
+        oItem.addEventListener('click', async event => {
+            const ele = event.target;
+            let targetDataset = ele.dataset;
+            const isIconHeart = ele.hasAttribute('is-icon-heart');
+            // 判断事件是否在 icon-heart上触发
+            if (!isIconHeart) {
+                return false;
+            }
+            if (targetDataset.bookmarkId) {
+                chrome.bookmarks.remove(
+                    targetDataset.bookmarkId,
+                    async bookmarkData => {
+                        console.log(bookmarkData);
+                        await getAllSubBookmark();
+                        ele.removeAttribute('data-bookmark-id');
+                        ele.className = ele.className.replace(' collected', '');
+                    }
+                );
+                return;
+            }
+            const bookmarkFolder = await searchBookmarksFolder();
+            // 创建书签 不带http或https 会抛出错误,添加http://
+            if (
+                targetDataset.link &&
+                !/^http:\/\//.test(targetDataset.link) &&
+                !/^https:\/\//.test(targetDataset.link)
+            ) {
+                targetDataset.link = 'http://' + targetDataset.link;
+            }
+            const bookmarkData = await createBookmark(
+                targetDataset.title || '无标题',
+                bookmarkFolder.id,
+                targetDataset.link
+            );
+            await getAllSubBookmark();
+            ele.setAttribute('data-bookmark-id', bookmarkData.id);
+            ele.className = ele.className + ' collected';
+        });
+    }
 });
