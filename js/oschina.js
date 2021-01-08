@@ -13,7 +13,7 @@ let Utils = {
             '_': '',
             'config': 'config_'
         },
-        handleStorageKeyPrefix({key, prefix = '_'} = {}) {
+        handleStorageKeyPrefix({ key, prefix = '_' } = {}) {
             let text = '';
             if (this.storagePrefix[prefix]) {
                 text += this.storagePrefix['_'];
@@ -23,25 +23,25 @@ let Utils = {
             }
             return text + key
         },
-        handleStorageKeysPrefix({keys, prefix} = {}) {
+        handleStorageKeysPrefix({ keys, prefix } = {}) {
             if (!this.storagePrefix[prefix]) return keys;
             if (typeof keys === "string") {
                 keys = [keys];
             }
             if (keys instanceof Array) {
                 for (let i = 0, len = keys.length; i < len; i++) {
-                    keys[i] = this.handleStorageKeyPrefix({key: keys[i], prefix});
+                    keys[i] = this.handleStorageKeyPrefix({ key: keys[i], prefix });
                 }
             } else {
                 keys = null;
             }
             return keys;
         },
-        async storageGet({keys, prefix = null} = {}) {
+        async storageGet({ keys, prefix = null } = {}) {
             return new Promise((resolve, reject) => {
                 const isOne = typeof keys === "string";
                 try {
-                    keys = this.handleStorageKeysPrefix({keys, prefix});
+                    keys = this.handleStorageKeysPrefix({ keys, prefix });
                     chrome.storage.local.get(keys, (json) => {
                         if (!json) {
                             resolve(json)
@@ -50,7 +50,7 @@ let Utils = {
                         if (isOne && keys) {
                             resolve(json[keys[0]])
                         } else {
-                            const prefixStr = this.handleStorageKeyPrefix({key: '', prefix});
+                            const prefixStr = this.handleStorageKeyPrefix({ key: '', prefix });
                             const newJson = {};
                             for (const jk in json) {
                                 if (!json.hasOwnProperty(jk)) continue;
@@ -65,14 +65,14 @@ let Utils = {
                 }
             })
         },
-        async storageSet({map, prefix = null} = {}) {
+        async storageSet({ map, prefix = null } = {}) {
             return new Promise((resolve, reject) => {
                 try {
                     if (this.storagePrefix[prefix]) {
                         const newMap = {};
                         for (let key in map) {
                             if (!map.hasOwnProperty(key)) continue;
-                            newMap[this.handleStorageKeyPrefix({key, prefix})] = map[key];
+                            newMap[this.handleStorageKeyPrefix({ key, prefix })] = map[key];
                         }
                         map = newMap;
                     }
@@ -84,10 +84,10 @@ let Utils = {
                 }
             })
         },
-        async storageRemove({keys, prefix = null} = {}) {
+        async storageRemove({ keys, prefix = null } = {}) {
             return new Promise((resolve, reject) => {
                 try {
-                    keys = this.handleStorageKeysPrefix({keys, prefix});
+                    keys = this.handleStorageKeysPrefix({ keys, prefix });
                     chrome.storage.local.remove(keys, () => {
                         resolve();
                     })
@@ -163,17 +163,16 @@ function constructRssItem(xmlNode) {
 }
 
 function constructListDiv(item, bookmarks = []) {
-	const bookmark = bookmarks.find(b => item.link === b.url);
-	return `
+    const bookmark = bookmarks.find(b => item.link === b.url);
+    return `
 <div class="item"><a target="_blank" href="${item.link +
-		'?' +
-		UTM_SOURCE_STR}">\
+        '?' +
+        UTM_SOURCE_STR}">\
 <div class="title">${stripHtml(item.title)}</div></a>\
-<div is-icon-heart ${
-		bookmark
-			? `class="icon-heart-fill collected"  data-bookmark-id="${bookmark.id}"`
-			: 'class="icon-heart-fill"'
-	}\
+<div is-icon-heart ${bookmark
+            ? `class="icon-heart-fill collected"  data-bookmark-id="${bookmark.id}"`
+            : 'class="icon-heart-fill"'
+        }\
  data-title="${stripHtml(item.title)}" data-link="${item.link}"></div>\
 <div class="description">${stripHtml(item.description)}</div>\
 <div class="pubDate">${item.pubDate}</div></div>`;
@@ -247,7 +246,7 @@ function searchBookmarksFolder() {
 
 let allSubBookmark = [];
 
-function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = false} = {}) {
+function getAllSubBookmark({ title = OSC_BOOKMARKS_NAME, cache = false } = {}) {
     return new Promise((resolve) => {
         if (cache && allSubBookmark && allSubBookmark.length > 0) {
             resolve(allSubBookmark);
@@ -270,7 +269,7 @@ function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = false} = {}) {
                                 HandleTree(item.children)
                             } else {
                                 if (!item.url) return;
-                                bookmarks.push({...item})
+                                bookmarks.push({ ...item })
                             }
                         })
                     }
@@ -289,7 +288,7 @@ function getAllSubBookmark({title = OSC_BOOKMARKS_NAME, cache = false} = {}) {
  * @param selectedValue
  */
 function getRssNewsRssData(selectedValue = 'all') {
-    Utils.chromePlugin.storageSet({map: {'rssNewsSelected': selectedValue}, prefix: 'config'})
+    Utils.chromePlugin.storageSet({ map: { 'rssNewsSelected': selectedValue }, prefix: 'config' })
     handleSelect('news-selector', selectedValue);
     setLoadingLabel('news-list');
     if (selectedValue === 'all') {
@@ -304,7 +303,7 @@ function getRssNewsRssData(selectedValue = 'all') {
  * @param selectedValue
  */
 function getBlogsListRssData(selectedValue = 'all') {
-    Utils.chromePlugin.storageSet({map: {'blogsListSelected': selectedValue}, prefix: 'config'})
+    Utils.chromePlugin.storageSet({ map: { 'blogsListSelected': selectedValue }, prefix: 'config' })
     handleSelect('blogs-selector', selectedValue);
     setLoadingLabel('blogs-list');
     if (selectedValue === 'all') {
@@ -319,7 +318,7 @@ function getBlogsListRssData(selectedValue = 'all') {
  * @param selectedValue
  */
 function getProjectsListRssData(selectedValue = 'all') {
-    Utils.chromePlugin.storageSet({map: {'projectsListSelected': selectedValue}, prefix: 'config'})
+    Utils.chromePlugin.storageSet({ map: { 'projectsListSelected': selectedValue }, prefix: 'config' })
     handleSelect('projects-selector', selectedValue);
     setLoadingLabel('projects-list');
     if (selectedValue === 'recomm') {
@@ -334,10 +333,25 @@ function getProjectsListRssData(selectedValue = 'all') {
  * @param selectedValue
  */
 function getQuestionsListRssData(selectedValue = '1') {
-    Utils.chromePlugin.storageSet({map: {'questionsListSelected': selectedValue}, prefix: 'config'})
+    Utils.chromePlugin.storageSet({ map: { 'questionsListSelected': selectedValue }, prefix: 'config' })
     handleSelect('questions-selector', selectedValue);
     setLoadingLabel('questions-list');
     getRssData(RSS_QUESTIONS_PREFIX + selectedValue, 'questions-list');
+}
+
+/**
+ * 获取专区文章数据
+ * @param selectedValue
+ */
+function getCircleArticlesListRssData(selectedValue = 'cross-front') {
+    Utils.chromePlugin.storageSet({ map: { 'circleArticlesListSelected': selectedValue }, prefix: 'config' })
+    handleSelect('circle-selector', selectedValue);
+    setLoadingLabel('blogs-list');
+    if (selectedValue === 'cross-front') {
+        getRssData(RSS_CIRCLE_ARTICLES_PREFIX + 'cross-front', 'blogs-list');
+    } else {
+        getRssData(RSS_CIRCLE_ARTICLES_PREFIX + selectedValue, 'blogs-list');
+    }
 }
 
 function handleSelect(selectId, val) {
@@ -358,7 +372,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // DOM内容加载完成之后，开始获取数据并展示
     getRssNewsRssData(config.rssNewsSelected); //最新资讯
     getQuestionsListRssData(config.questionsListSelected); //最新发布问答
-    getBlogsListRssData(config.blogsListSelected); //最新推荐博客
+    //getBlogsListRssData(config.blogsListSelected); //最新推荐博客
+    getCircleArticlesListRssData(config.circleArticlesListSelected);//专区文章列表
     getProjectsListRssData(config.projectsListSelected); //最新收录开源软件
 
     // //下载源码按钮点击事件
@@ -391,15 +406,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('news-title').onclick = function (event) {
         var selectedValue = document.getElementById('news-selector').value;
         if (selectedValue) {
-            getRssNewsRssData(selectedValue)
+            getRssNewsRssData(selectedValue);
         }
     };
 
     //标题「推荐博客」的点击事件
     document.getElementById('blogs-title').onclick = function (event) {
-        var selectedValue = document.getElementById('blogs-selector').value;
+        var selectedValue = document.getElementById('circle-selector').value;
         if (selectedValue) {
-            getBlogsListRssData(selectedValue)
+            getCircleArticlesListRssData(selectedValue);//专区文章列表
         }
     };
 
@@ -415,7 +430,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('questions-title').onclick = function (event) {
         var selectedValue = document.getElementById('questions-selector').value;
         if (selectedValue) {
-            getQuestionsListRssData(selectedValue)
+            getQuestionsListRssData(selectedValue);
         }
     };
 
@@ -424,8 +439,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('news-title').click();
     };
 
-    //博客：下拉框的变化事件
-    document.getElementById('blogs-selector').onchange = function (event) {
+    //专区文章：下拉框的变化事件
+    document.getElementById('circle-selector').onchange = function (event) {
         document.getElementById('blogs-title').click();
     };
 

@@ -19,6 +19,9 @@ const RSS_RECOMM_BLOGS = 'https://www.oschina.net/blog/rss';
 //博客前缀
 const RSS_RECOMM_BLOGS_CATEGORY_PREFIX = 'https://www.oschina.net/blog/rss?cid=';
 
+//专区文章前缀
+const RSS_CIRCLE_ARTICLES_PREFIX = 'https://www.oschina.net/groups/rss?ident=';
+
 //UTM_SOURCE 配置
 const UTM_SOURCE_STR = 'utm_source=oschina-chrome-extension';
 
@@ -27,6 +30,7 @@ const GITEE_REPO_URL = 'https://gitee.com/barat/osc-chrome-extension?' + UTM_SOU
 
 //搜索前缀
 const OSC_SEARCH_PREFIX = 'https://www.oschina.net/search?scope=all&q=';
+
 
 //书签文件夹名
 const OSC_BOOKMARKS_NAME = "开源中国";
