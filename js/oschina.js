@@ -115,7 +115,7 @@ function getRssData(rssLink, divId) {
         var responseXML = xhr.responseXML;
         if (!responseXML) {
             try {
-                responseXML = (new DOMParser()).parseFromString(xhr.responseText.replace(/[\x00-\x1F]/g, ' '), 'text/xml');
+                responseXML = (new DOMParser()).parseFromString(xhr.responseText.replace(/[\x00-\x1F]/g, ''), 'text/xml');
             } catch (e) {
                 console.log('error->', error);
                 setErrorLabel(divId, 'text转换xml出错');
